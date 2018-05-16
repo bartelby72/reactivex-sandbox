@@ -1,7 +1,7 @@
 package org.mbmb.simple;
 
+import rx.Observable;
 import rx.Observer;
-import rx.subjects.PublishSubject;
 
 public class Driver {
 	static Integer subscriber1 = 0;
@@ -46,13 +46,28 @@ public class Driver {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		PublishSubject<Integer> subject = PublishSubject.create();
-		subject.subscribe(getFirstObserver());
-		subject.onNext(1);
-		subject.onNext(2);
-		subject.onNext(3);
-		subject.subscribe(getSecondObserver());
-		subject.onNext(4);
-		subject.onCompleted();
+//		PublishSubject<Integer> subject = PublishSubject.create();
+//		subject.subscribe(getFirstObserver());
+//		subject.onNext(1);
+//		subject.onNext(2);
+//		subject.onNext(3);
+//		subject.subscribe(getSecondObserver());
+//		subject.onNext(4);
+//		subject.onCompleted();
+		String[] result = {""};
+		Observable<Character> values = Observable.using(
+				() -> "MyResource",
+				r -> Observable.create(o -> {
+					for (Character c : r.toCharArray()) {
+						o.onNext(c);
+					}
+					o.onCompleted();
+				}),
+				r -> System.out.println("Disposed: " + r)
+		);
+		values.subscribe(
+				v -> result[0] += v,
+				e -> result[0] += e
+		);
 	}
 }
