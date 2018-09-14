@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * from https://www.baeldung.com/rx-java
  */
-public class HelloWorldTest {
+public class BasicObservableTest {
     private String result;
 
     @BeforeEach
