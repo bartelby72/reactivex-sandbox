@@ -1,11 +1,12 @@
 package org.mbmb.helloworld;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observables.ConnectableObservable;
+import io.reactivex.subjects.PublishSubject;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
-import rx.Observable;
-import rx.Observer;
-import rx.observables.ConnectableObservable;
-import rx.subjects.PublishSubject;
 
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,6 +34,11 @@ public class OtherObservableTest {
     Observer<Integer> getFirstObserver() {
         return new Observer<Integer>() {
             @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
             public void onNext(Integer value) {
                 subscriber1 += value;
             }
@@ -43,14 +49,19 @@ public class OtherObservableTest {
             }
 
             @Override
-            public void onCompleted() {
-                System.out.println("Subscriber1 completed");
+            public void onComplete() {
+
             }
         };
     }
 
     Observer<Integer> getSecondObserver() {
         return new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
             @Override
             public void onNext(Integer value) {
                 subscriber2 += value;
@@ -62,8 +73,8 @@ public class OtherObservableTest {
             }
 
             @Override
-            public void onCompleted() {
-                System.out.println("Subscriber2 completed");
+            public void onComplete() {
+
             }
         };
     }
@@ -77,7 +88,7 @@ public class OtherObservableTest {
         subject.onNext(3);
         subject.subscribe(getSecondObserver());
         subject.onNext(4);
-        subject.onCompleted();
+        subject.onComplete();
 
         assertTrue(subscriber1 + subscriber2 == 14);
     }
@@ -91,7 +102,7 @@ public class OtherObservableTest {
                 for (Character c : r.toCharArray()) {
                     o.onNext(c);
                 }
-                o.onCompleted();
+                o.onComplete();
             }),
             r -> System.out.println("Disposed: " + r)
         );
