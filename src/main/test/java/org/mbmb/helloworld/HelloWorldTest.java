@@ -142,4 +142,14 @@ public class HelloWorldTest {
             .subscribe(total -> result += total.toString());
         assertTrue(result.equals("aababc"));
     }
+
+    @Test
+    public void filterOdds() {
+        Integer[] numbers = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        Observable.from(numbers)
+            .filter(i -> (i % 2 == 1))
+            .subscribe(i -> result += i);
+
+        assertTrue(result.equals("13579"));
+    }
 }
