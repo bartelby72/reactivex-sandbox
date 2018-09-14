@@ -110,4 +110,27 @@ public class HelloWorldTest {
         scheduler.advanceTimeBy(1, TimeUnit.MINUTES);
         assertEquals("fx", result);
     }
+
+    /**
+     * https://medium.com/appunite-edu-collection/rxjava-flatmap-switchmap-and-concatmap-differences-examples-6d1f3ff88ee0
+     */
+    @Test
+    public void concatMap() {
+        final List<String> items = Arrays.asList("a", "b", "c", "d", "e", "f");
+
+        final TestScheduler scheduler = new TestScheduler();
+
+        Observable.from(items)
+            .concatMap(s -> {
+                final int delay = new Random().nextInt(10);
+                return Observable.just(s + "x")
+                    .delay(delay, TimeUnit.SECONDS, scheduler);
+            })
+            .toList()
+            .doOnNext(l -> l.forEach(s -> result += s))
+            .subscribe();
+
+        scheduler.advanceTimeBy(1, TimeUnit.MINUTES);
+        assertEquals("axbxcxdxexfx", result);
+    }
 }
