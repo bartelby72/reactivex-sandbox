@@ -133,4 +133,13 @@ public class HelloWorldTest {
         scheduler.advanceTimeBy(1, TimeUnit.MINUTES);
         assertEquals("axbxcxdxexfx", result);
     }
+
+    @Test
+    public void scan() {
+        String[] letters = {"a", "b", "c"};
+        Observable.from(letters)
+            .scan(new StringBuilder(), StringBuilder::append)
+            .subscribe(total -> result += total.toString());
+        assertTrue(result.equals("aababc"));
+    }
 }
