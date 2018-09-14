@@ -69,5 +69,6 @@ public class Driver {
 				v -> result[0] += v,
 				e -> result[0] += e
 		);
+		System.out.println(result[0]);
 	}
 }
