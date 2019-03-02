@@ -3,14 +3,16 @@ package org.mbmb.inbound;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("ALL")
 public class InboundGuy {
 
-    public static void main(String[] args) throws InterruptedException {
+    private void testWithCountdownLatch() throws InterruptedException {
         CountDownLatch done = new CountDownLatch(2);
         final List<Integer> integers = Arrays.asList(1, 2, 3, 4, 5);
 
@@ -54,5 +56,93 @@ public class InboundGuy {
                 .subscribe()
         );
         done.await(3, TimeUnit.SECONDS);
+    }
+
+    private void testObserveOn() {
+        Observable.create(emitter -> {
+            Arrays.asList(1, 2, 3, 4, 5)
+                .forEach(i -> {
+                    System.err.println(Thread.currentThread().getName() + ": testObserveOn: emitting: " + i);
+                    emitter.onNext(i);
+                });
+        })
+            .observeOn(Schedulers.newThread())
+            .doOnNext(o -> {
+                System.err.println(Thread.currentThread().getName() + ": testObserveOn: onNext: " + o);
+            })
+            .subscribe();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void testSubjectObserveOn() {
+        PublishSubject<Integer> publishSubject = PublishSubject.create();
+        List<Integer> integers = Arrays.asList(1, 2, 3, 4, 5);
+        publishSubject.observeOn(Schedulers.newThread())
+            .doOnNext(o -> {
+                System.err.println(Thread.currentThread().getName() + ": testSubjectObserveOn: onNext: " + o);
+            })
+            .subscribe();
+        integers.forEach(i -> {
+            System.err.println(Thread.currentThread().getName() + ": testSubjectObserveOn: emitting: " + i);
+            publishSubject.onNext(i);
+        });
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void testSubscribeOn() {
+        Observable.create(emitter -> {
+            Arrays.asList(1, 2, 3, 4, 5)
+                .forEach(i -> {
+                    System.err.println(Thread.currentThread().getName() + ": testSubscribeOn: emitting: " + i);
+                    emitter.onNext(i);
+                });
+        })
+            .subscribeOn(Schedulers.newThread())
+            .doOnNext(o -> {
+                System.err.println(Thread.currentThread().getName() + ": testSubscribeOn: onNext: " + o);
+            })
+            .subscribe();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void testSubjectSubscribeOn() {
+        PublishSubject<Integer> publishSubject = PublishSubject.create();
+        List<Integer> integers = Arrays.asList(1, 2, 3, 4, 5);
+        publishSubject.subscribeOn(Schedulers.newThread())
+            .doOnNext(o -> {
+                System.err.println(Thread.currentThread().getName() + ": testSubjectSubscribeOn: onNext: " + o);
+            })
+            .subscribe();
+        integers.forEach(i -> {
+            System.err.println(Thread.currentThread().getName() + ": testSubjectSubscribeOn: emitting: " + i);
+            publishSubject.onNext(i);
+        });
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        InboundGuy inboundGuy = new InboundGuy();
+
+//        inboundGuy.testWithCountdownLatch();
+        inboundGuy.testObserveOn();
+        inboundGuy.testSubjectObserveOn();
+        inboundGuy.testSubscribeOn();
+        inboundGuy.testSubjectSubscribeOn();
     }
 }
